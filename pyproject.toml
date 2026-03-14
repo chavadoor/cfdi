@@ -1,0 +1,53 @@
+[project]
+name = "erpnext_mexico_compliance"
+authors = [{ name = "TI Sin Problemas", email = "info@tisinproblemas.com" }]
+description = "ERPNext app to serve as base to comply with help with Mexican Rules and Regulations"
+requires-python = ">=3.11"
+readme = "README.md"
+dynamic = ["version"]
+dependencies = ["satcfdi==4.9.5", "lxml==6.0.2"]
+
+[project.urls]
+Homepage = "https://tisinproblemas.com/mexico-compliance"
+Repository = "https://github.com/TI-Sin-Problemas/erpnext_mexico_compliance.git"
+"Bug Reports" = "https://github.com/TI-Sin-Problemas/erpnext_mexico_compliance/issues"
+
+[build-system]
+requires = ["flit_core"]
+build-backend = "flit_core.buildapi"
+
+# These dependencies are only installed when developer mode is enabled
+[tool.bench.dev-dependencies]
+# package_name = "~=1.1.0"
+
+[tool.bench.frappe-dependencies]
+frappe = ">=16.0.0,<17.0.0"
+erpnext = ">=16.0.0,<17.0.0"
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["F", "E", "W", "I", "UP", "B", "RUF"]
+ignore = [
+    "B017", # assertRaises(Exception) - should be more specific
+    "B018", # useless expression, not assigned to anything
+    "B023", # function doesn't bind loop variable - will have last iteration's value
+    "B904", # raise inside except without from
+    "E101", # indentation contains mixed spaces and tabs
+    "E402", # module level import not at top of file
+    "E501", # line too long
+    "E741", # ambiguous variable name
+    "F401", # "unused" imports
+    "F403", # can't detect undefined names from * import
+    "F405", # can't detect undefined names from * import
+    "F722", # syntax error in forward type annotation
+    "W191", # indentation contains tabs
+]
+typing-modules = ["frappe.types.DF"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "tab"
+docstring-code-format = true

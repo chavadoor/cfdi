@@ -1,0 +1,16 @@
+"""Copyright (c) 2025, TI Sin Problemas and contributors
+For license information, please see license.txt
+"""
+
+from .catalogs import CatalogManager
+
+
+def update_sat_catalogs():
+    manager = CatalogManager()
+    manager.update_doctype("SAT Tax Regime")
+    manager.update_doctype("SAT CFDI Use")
+    manager.update_doctype("SAT Payment Option")
+    manager.update_doctype("SAT Payment Method")
+    manager.update_doctype("SAT Product or Service Key")
+    manager.update_doctype("SAT Relationship Type")
+    manager.update_doctype("SAT UOM Key")
