@@ -6,7 +6,8 @@ app_publisher = "TI Sin Problemas"
 app_description = "ERPNext app to serve as base to comply with Mexican Rules and Regulations"
 app_email = "info@tisinproblemas.com"
 app_license = "MIT"
-app_home = "/desk/mexico-compliance"
+# ERPNext/Frappe v16 uses /app/* desk routes.
+app_home = "/app/mexico"
 required_apps = ["erpnext"]
 
 add_to_apps_screen = [

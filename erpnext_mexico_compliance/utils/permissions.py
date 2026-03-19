@@ -5,10 +5,17 @@ def check_app_permission():
     if frappe.session.user == "Administrator":
         return True
 
-    roles = frappe.get_roles()
-    allowed_roles = ["System Manager", "Accounts Manager"]
+    roles = set(frappe.get_roles())
+    allowed_roles = {
+        "System Manager",
+        "Accounts Manager",
+        "Accounts User",
+        "Sales Manager",
+        "Sales User",
+    }
 
-    if any(role in allowed_roles for role in roles):
+    if roles.intersection(allowed_roles):
         return True
 
-    return False
+    # Fallback: show the app when the user can access the core module settings doctype.
+    return frappe.has_permission("Digital Signing Certificate", ptype="read")
