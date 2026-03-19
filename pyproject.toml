@@ -1,4 +1,4 @@
-﻿[project]
+[project]
 name = "erpnext_mexico_compliance"
 authors = [{ name = "TI Sin Problemas", email = "info@tisinproblemas.com" }]
 description = "ERPNext app to serve as base to comply with help with Mexican Rules and Regulations"
