@@ -1,0 +1,38 @@
+[
+ {
+  "code": "01",
+  "description": "Comprobante emitido con errores con relación",
+  "docstatus": 0,
+  "doctype": "Cancellation Reason",
+  "modified": "2026-01-30 10:32:43.493022",
+  "name": "01",
+  "requires_relationship": 1
+ },
+ {
+  "code": "02",
+  "description": "Comprobante emitido con errores sin relación",
+  "docstatus": 0,
+  "doctype": "Cancellation Reason",
+  "modified": "2026-01-30 15:28:11.207112",
+  "name": "02",
+  "requires_relationship": 0
+ },
+ {
+  "code": "03",
+  "description": "No se llevó a cabo la operación",
+  "docstatus": 0,
+  "doctype": "Cancellation Reason",
+  "modified": "2026-01-30 10:32:43.565758",
+  "name": "03",
+  "requires_relationship": 0
+ },
+ {
+  "code": "04",
+  "description": "Operación nominativa relacionada con una factura global",
+  "docstatus": 0,
+  "doctype": "Cancellation Reason",
+  "modified": "2026-01-30 10:32:43.575758",
+  "name": "04",
+  "requires_relationship": 0
+ }
+]

@@ -1,0 +1,91 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-08-09 14:55:18.675674",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "web_service_section",
+  "stamping_provider",
+  "api_key",
+  "api_secret",
+  "test_mode",
+  "column_break_omyj",
+  "stamp_on_submit",
+  "default_csds"
+ ],
+ "fields": [
+  {
+   "fieldname": "web_service_section",
+   "fieldtype": "Section Break",
+   "label": "Web Service"
+  },
+  {
+   "default": "Finkok",
+   "fieldname": "stamping_provider",
+   "fieldtype": "Select",
+   "label": "Stamping Provider",
+   "options": "Finkok"
+  },
+  {
+   "fieldname": "api_key",
+   "fieldtype": "Data",
+   "label": "API Key"
+  },
+  {
+   "default": "1",
+   "fieldname": "test_mode",
+   "fieldtype": "Check",
+   "label": "Test mode"
+  },
+  {
+   "fieldname": "api_secret",
+   "fieldtype": "Password",
+   "label": "API Secret"
+  },
+  {
+   "fieldname": "column_break_omyj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "If this option is enabled the Documents will be stamped automatically when submitting them",
+   "fieldname": "stamp_on_submit",
+   "fieldtype": "Check",
+   "label": "Stamp on submit"
+  },
+  {
+   "depends_on": "eval: doc.stamp_on_submit;",
+   "fieldname": "default_csds",
+   "fieldtype": "Table",
+   "label": "Default Digital Signing Certificates",
+   "mandatory_depends_on": "eval: doc.stamp_on_submit;",
+   "options": "Default CSD"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-01-15 11:47:15.876169",
+ "modified_by": "Administrator",
+ "module": "ERPNext Mexico Compliance",
+ "name": "CFDI Stamping Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
