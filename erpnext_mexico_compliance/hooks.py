@@ -1,3 +1,5 @@
+from urllib.parse import quote
+
 from . import __version__ as app_version
 
 app_name = "erpnext_mexico_compliance"
@@ -6,8 +8,9 @@ app_publisher = "TI Sin Problemas"
 app_description = "ERPNext app to serve as base to comply with Mexican Rules and Regulations"
 app_email = "info@tisinproblemas.com"
 app_license = "MIT"
-# ERPNext/Frappe v16 uses /app/* desk routes.
-app_home = "/app/mexico"
+# Frappe v16: desk routes are under /desk (not /app). Must match Workspace.name (see workspace JSON).
+_MEXICO_WORKSPACE_NAME = "México"
+app_home = f"/desk/{quote(_MEXICO_WORKSPACE_NAME, safe='')}"
 required_apps = ["erpnext"]
 
 add_to_apps_screen = [
