@@ -2,15 +2,21 @@ from urllib.parse import quote
 
 from . import __version__ as app_version
 
+
+def desk_workspace_slug(name: str) -> str:
+	"""Match frappe/public/js/frappe/router.js slug(): lower case, spaces to hyphens."""
+	return name.lower().replace(" ", "-")
+
+
 app_name = "erpnext_mexico_compliance"
 app_title = "México"
 app_publisher = "TI Sin Problemas"
 app_description = "ERPNext app to serve as base to comply with Mexican Rules and Regulations"
 app_email = "info@tisinproblemas.com"
 app_license = "MIT"
-# Frappe v16: desk routes are under /desk (not /app). Must match Workspace.name (see workspace JSON).
+# Frappe v16: desk URLs use /desk/<slug> where slug matches frappe.router.slug(name), not raw Workspace.name.
 _MEXICO_WORKSPACE_NAME = "México"
-app_home = f"/desk/{quote(_MEXICO_WORKSPACE_NAME, safe='')}"
+app_home = f"/desk/{quote(desk_workspace_slug(_MEXICO_WORKSPACE_NAME), safe='')}"
 required_apps = ["erpnext"]
 
 add_to_apps_screen = [
