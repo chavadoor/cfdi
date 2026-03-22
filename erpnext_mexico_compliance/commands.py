@@ -79,8 +79,7 @@ def sync_catalogs_logic():
             "doctype": "SAT Relationship Type",
             "key": "id",
             "fields": {
-                "key": "id",
-                "key_name": "texto",
+                "code": "id",
                 "description": "texto",
                 "enabled": "1"
             }
