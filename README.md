@@ -89,7 +89,7 @@ Please be aware that in order to successfully stamp a Payment Entry, some requir
 
 ### Mexican authorities catalogs
 
-Some of the Mexican authorities catalogs are added as Doctypes
+Some of the Mexican authorities catalogs are added as Doctypes. The catalogs are automatically downloaded and synced monthly in the background.
 
 | Doctype                    | Catalog (in spanish)           |
 | -------------------------- | ------------------------------ |
@@ -100,6 +100,12 @@ Some of the Mexican authorities catalogs are added as Doctypes
 | SAT Product Or Service Key | Clave de producto/servicio SAT |
 | SAT Tax Regime             | Régimen fiscal SAT             |
 | SAT UOM Key                | Clave de unidad de medida SAT  |
+| SAT Postal Code            | Código postal SAT              |
+
+To manually trigger the catalogs synchronization, you can run the following bench command:
+```bash
+bench mexico-compliance-sync-catalogs
+```
 
 ### Compliance fields
 

@@ -100,7 +100,7 @@ class PaymentEntry(CommonController, payment_entry.PaymentEntry):
 		return cfdi40.Receptor(
 			rfc=customer.tax_id,
 			nombre=customer.customer_name.upper(),
-			domicilio_fiscal_receptor=address.pincode,
+			domicilio_fiscal_receptor=address.pincode[:5],
 			regimen_fiscal_receptor=customer.mx_tax_regime,
 			uso_cfdi="CP01",
 		)
@@ -177,7 +177,7 @@ class PaymentEntry(CommonController, payment_entry.PaymentEntry):
 				fecha_pago=get_datetime(reference_date),
 				forma_pago=forma_pago,
 				emisor=issuer,
-				lugar_expedicion=address.pincode,
+				lugar_expedicion=address.pincode[:5],
 				receptor=self.cfdi_receiver,
 				serie=self.cfdi_series,
 				folio=self.cfdi_folio,
@@ -200,7 +200,7 @@ class PaymentEntry(CommonController, payment_entry.PaymentEntry):
 
 		return cfdi40.Comprobante.pago(
 			emisor=issuer,
-			lugar_expedicion=address.pincode,
+			lugar_expedicion=address.pincode[:5],
 			receptor=self.cfdi_receiver,
 			complemento_pago=pago20.Pagos(pago=payment),
 			serie=self.cfdi_series,
@@ -220,7 +220,7 @@ class PaymentEntry(CommonController, payment_entry.PaymentEntry):
 		"""
 		if self.company_address:
 			address = frappe.get_doc("Address", self.company_address)
-			if not address.pincode:
+			if not address.pincode[:5]:
 				link = f'<a href="{address.get_url()}">{address.name}</a>'
 				frappe.throw(_("Address {0} has no zip code").format(link))
 		else:
@@ -237,7 +237,7 @@ class PaymentEntry(CommonController, payment_entry.PaymentEntry):
 			frappe.throw(msg)
 
 		address: Address = frappe.get_doc("Address", customer.customer_primary_address)  # type: ignore
-		if not address.pincode:
+		if not address.pincode[:5]:
 			link = f'<a href="{address.get_url()}">{address.name}</a>'
 			msg = _("Customer address {0} has no zip code").format(link)
 			frappe.throw(msg)

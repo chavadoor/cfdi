@@ -186,9 +186,9 @@ scheduler_events = {
 	# 	"weekly": [
 	# 		"erpnext_mexico_compliance.tasks.weekly"
 	# 	],
-	# 	"monthly": [
-	# 		"erpnext_mexico_compliance.tasks.monthly"
-	# 	],
+	"monthly": [
+		"erpnext_mexico_compliance.commands.sync_catalogs_logic"
+	],
 }
 
 # Testing
@@ -277,3 +277,8 @@ fixtures = [
 		"doctype": "Cancellation Reason",
 	},
 ]
+
+commands = [
+	"erpnext_mexico_compliance.commands.commands"
+]
+

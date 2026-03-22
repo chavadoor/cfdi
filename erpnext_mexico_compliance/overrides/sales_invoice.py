@@ -143,7 +143,7 @@ class SalesInvoice(CommonController, sales_invoice.SalesInvoice):
 		"""
 		if self.company_address:
 			address = frappe.get_doc("Address", self.company_address)
-			if not address.pincode:
+			if not address.pincode[:5]:
 				link = f'<a href="{address.get_url()}">{address.name}</a>'
 				frappe.throw(_("Address {0} has no zip code").format(link))
 		else:
@@ -171,7 +171,7 @@ class SalesInvoice(CommonController, sales_invoice.SalesInvoice):
 
 		if self.customer_address:
 			address = self.customer_address_doc
-			if not address.pincode:
+			if not address.pincode[:5]:
 				link = f'<a href="{address.get_url()}">{address.name}</a>'
 				msgs.append(_("Customer address {0} has no zip code").format(link))
 		else:
@@ -189,7 +189,7 @@ class SalesInvoice(CommonController, sales_invoice.SalesInvoice):
 		return cfdi40.Receptor(
 			rfc=self.customer_doc.tax_id,
 			nombre=self.customer_name.upper(),
-			domicilio_fiscal_receptor=self.customer_address_doc.pincode,
+			domicilio_fiscal_receptor=self.customer_address_doc.pincode[:5],
 			regimen_fiscal_receptor=self.customer_doc.mx_tax_regime,
 			uso_cfdi=self.mx_cfdi_use,
 		)
@@ -265,7 +265,7 @@ class SalesInvoice(CommonController, sales_invoice.SalesInvoice):
 
 		return cfdi40.Comprobante(
 			emisor=csd.get_issuer(),
-			lugar_expedicion=address.pincode,
+			lugar_expedicion=address.pincode[:5],
 			receptor=self.cfdi_receiver,
 			conceptos=self.cfdi_items,
 			moneda=self.currency,
