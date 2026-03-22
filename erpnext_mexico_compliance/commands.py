@@ -168,7 +168,7 @@ def sync_catalogs_logic():
                 for i in range(0, len(to_insert), chunk_size):
                     chunk = to_insert[i:i+chunk_size]
                     try:
-                        fields = list(chunk[0].keys())
+                        fields = [f for f in chunk[0].keys() if f != "doctype"]
                         values = [tuple(doc.get(f) for f in fields) for doc in chunk]
                         frappe.db.bulk_insert(doctype, fields=fields, values=values, ignore_duplicates=True)
                         frappe.db.commit()
