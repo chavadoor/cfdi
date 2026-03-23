@@ -143,6 +143,8 @@ class PaymentEntry(CommonController, payment_entry.PaymentEntry):
 		return None
 
 	def get_cfdi_voucher(self, csd: DigitalSigningCertificate) -> cfdi40.Comprobante:
+		from satcfdi.create.cfd.cfdi40 import PagoComprobante
+
 		address = frappe.get_doc("Address", self.company_address)
 
 		reference_date = self.reference_date
@@ -161,51 +163,39 @@ class PaymentEntry(CommonController, payment_entry.PaymentEntry):
 				title=_("CFDI Validation Error"),
 			)
 
-		if all(r.total_amount == r.allocated_amount for r in self.references):
-			invoices = []
-			for r in self.references:
-				invoice: SalesInvoice = frappe.get_doc(  # type: ignore
-					r.reference_doctype, r.reference_name
+		invoices = []
+		for r in self.references:
+			invoice: SalesInvoice = frappe.get_doc(  # type: ignore
+				r.reference_doctype, r.reference_name
+			)
+			if not invoice.mx_stamped_xml:
+				msg = _("Reference {0} has not being stamped").format(invoice.name)
+				frappe.throw(msg)
+			
+			cfdi = invoice.mx_cfdi_obj
+			parcialidad = get_installment_number(r.reference_doctype, r.reference_name, self.name) or 1
+			saldo_ant = r.allocated_amount + r.outstanding_amount
+			pagado = r.allocated_amount
+
+			invoices.append(
+				PagoComprobante(
+					comprobante=cfdi,
+					num_parcialidad=parcialidad,
+					imp_saldo_ant=saldo_ant,
+					imp_pagado=pagado
 				)
-				if not invoice.mx_stamped_xml:
-					msg = _("Reference {0} has not being stamped").format(invoice.name)
-					frappe.throw(msg)
-				cfdi = invoice.mx_cfdi_obj
-				invoices.append(cfdi)
-			return cfdi40.Comprobante.pago_comprobantes(
-				comprobantes=invoices,
-				fecha_pago=get_datetime(reference_date),
-				forma_pago=forma_pago,
-				emisor=issuer,
-				lugar_expedicion=address.pincode[:5],
-				receptor=self.cfdi_receiver,
-				serie=self.cfdi_series,
-				folio=self.cfdi_folio,
-				fecha=get_datetime(posting_date),
 			)
 
-		frappe.throw(_("All references must have the same total amount, partial payments are not supported"))
-
-		payment = pago20.Pago(
-			fecha_pago=reference_date,
-			forma_de_pago_p=forma_pago,
-			moneda_p=self.paid_from_account_currency,
-			docto_relacionado=self.cfdi_related_documents,
-			tipo_cambio_p=self.source_exchange_rate,
-		)
-
-		posting_date = self.posting_date
-		if isinstance(posting_date, str):
-			posting_date = get_datetime(posting_date)
-
-		return cfdi40.Comprobante.pago(
+		return cfdi40.Comprobante.pago_comprobantes(
+			comprobantes=invoices,
+			fecha_pago=get_datetime(reference_date),
+			forma_pago=forma_pago,
 			emisor=issuer,
 			lugar_expedicion=address.pincode[:5],
 			receptor=self.cfdi_receiver,
-			complemento_pago=pago20.Pagos(pago=payment),
 			serie=self.cfdi_series,
 			folio=self.cfdi_folio,
-			fecha=posting_date,
+			fecha=get_datetime(posting_date),
 		)
 
 	def validate_company_address(self):
