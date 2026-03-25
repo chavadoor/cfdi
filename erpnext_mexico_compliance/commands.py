@@ -25,7 +25,7 @@ def sync_catalogs_logic():
     # Mapeo de tablas a DocTypes y sus campos
     catalogs_mapping = {
         "cfdi_40_formas_pago": {
-            "doctype": "SAT Payment Option",
+            "doctype": "SAT Payment Method",
             "key": "id",
             "fields": {
                 "key": "id",
@@ -35,7 +35,7 @@ def sync_catalogs_logic():
             }
         },
         "cfdi_40_metodos_pago": {
-            "doctype": "SAT Payment Method",
+            "doctype": "SAT Payment Option",
             "key": "id",
             "fields": {
                 "key": "id",

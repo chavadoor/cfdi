@@ -3,7 +3,7 @@
  "autoname": "field:key",
  "creation": "2024-06-27 01:29:40.855867",
  "default_view": "List",
- "description": "Indicates the method used to make a payment, in accordance with the SAT catalog of payment methods",
+ "description": "Indicates the method used to make a payment, in accordance with the SAT catalog of payment methods (PUE, PPD)",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -28,7 +28,7 @@
    "fieldname": "key",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Key",
+   "label": "SAT Method Code",
    "length": 3,
    "reqd": 1,
    "unique": 1
@@ -36,7 +36,7 @@
   {
    "fieldname": "key_name",
    "fieldtype": "Data",
-   "label": "Key Name",
+   "label": "Payment Method Name",
    "read_only": 1
   },
   {
@@ -50,7 +50,7 @@
  "hide_toolbar": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-01-12 19:04:24.299677",
+ "modified": "2026-03-25 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "ERPNext Mexico Compliance",
  "name": "SAT Payment Option",
