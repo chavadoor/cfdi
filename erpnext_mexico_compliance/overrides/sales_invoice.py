@@ -251,8 +251,15 @@ class SalesInvoice(CommonController, sales_invoice.SalesInvoice):
 		for rsi in self.mx_related_sales_invoices:
 			related_documents.setdefault(rsi.sat_relationship_type, []).append(rsi.uuid)
 
-		metodo_pago = self._get_effective_metodo_pago()
-		forma_pago = self._get_effective_forma_pago()
+		metodo_pago_val = self._get_effective_metodo_pago()
+		forma_pago_val = self._get_effective_forma_pago()
+
+		# Detect and correct swapped values due to confusing field labels
+		if str(metodo_pago_val).upper() not in ["PUE", "PPD"] and str(forma_pago_val).upper() in ["PUE", "PPD"]:
+			# The values are swapped, so swap them back
+			metodo_pago, forma_pago = forma_pago_val, metodo_pago_val
+		else:
+			metodo_pago, forma_pago = metodo_pago_val, forma_pago_val
 
 		# Per SAT rules, if MetodoPago is PPD, FormaPago MUST be "99" (Por definir).
 		if metodo_pago == "PPD":
