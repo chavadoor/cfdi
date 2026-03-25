@@ -265,6 +265,15 @@ class SalesInvoice(CommonController, sales_invoice.SalesInvoice):
 		if metodo_pago == "PPD":
 			forma_pago = "99"
 
+		# Validation: PUE requires the invoice to be fully paid.
+		if metodo_pago == "PUE" and self.outstanding_amount > 0:
+			msg = _(
+				"Cannot stamp CFDI with 'PUE' (Pago en una sola exhibición) because the invoice is unpaid. "
+				"The outstanding amount must be 0 to use PUE. "
+				"Please register the payment first, or change the SAT Payment Option to 'PPD' (Pago en parcialidades o diferido)."
+			)
+			frappe.throw(msg, title=_("Invalid Payment Method"))
+
 		tipo = catalogos.TipoDeComprobante.INGRESO
 		tipo_val = getattr(tipo, "value", tipo) if hasattr(tipo, "value") else tipo
 		if str(tipo_val) in ("I", "E", "N") and (not forma_pago or not metodo_pago):
