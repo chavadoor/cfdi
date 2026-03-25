@@ -78,7 +78,7 @@ class SalesInvoice(CommonController, sales_invoice.SalesInvoice):
 			try:
 				self.stamp_cfdi(csd)
 			except Exception as e:
-				frappe.msgprint(str(e), title=_("CFDI Stamping Error"))
+				frappe.msgprint(str(e), title=_("Error al timbrar CFDI"))
 
 	@property
 	def subscription_duration_display(self) -> str:
@@ -96,8 +96,8 @@ class SalesInvoice(CommonController, sales_invoice.SalesInvoice):
 		Returns:
 			str: The formatted service duration string.
 		"""
-		start_date = _("From {}").format(self.from_date) if self.from_date else ""
-		end_date = _("To {}").format(self.to_date) if self.to_date else ""
+		start_date = _("Desde {}").format(self.from_date) if self.from_date else ""
+		end_date = _("Hasta {}").format(self.to_date) if self.to_date else ""
 		return f"{start_date} {end_date}".strip()
 
 	@property
@@ -145,11 +145,11 @@ class SalesInvoice(CommonController, sales_invoice.SalesInvoice):
 			address = frappe.get_doc("Address", self.company_address)
 			if not address.pincode[:5]:
 				link = f'<a href="{address.get_url()}">{address.name}</a>'
-				frappe.throw(_("Address {0} has no zip code").format(link))
+				frappe.throw(_("La dirección {0} no tiene código postal").format(link))
 		else:
 			company = self.company_doc
 			link = f'<a href="{company.get_url()}">{company.name}</a>'
-			frappe.throw(_("Company {0} has no address").format(link))
+			frappe.throw(_("La empresa {0} no tiene dirección configurada").format(link))
 
 	def validate_customer(self):
 		"""Validates the customer information on the invoice.
@@ -164,18 +164,18 @@ class SalesInvoice(CommonController, sales_invoice.SalesInvoice):
 		customer_link = f'<a href="{self.customer_doc.get_url()}">{self.customer_doc.name}</a>'
 		msgs = []
 		if not self.customer_doc.tax_id:
-			msgs.append(_("Customer {0} has no tax ID").format(customer_link))
+			msgs.append(_("El cliente {0} no tiene RFC configurado").format(customer_link))
 
 		if not self.customer_doc.mx_tax_regime:
-			msgs.append(_("Customer {0} has no tax regime").format(customer_link))
+			msgs.append(_("El cliente {0} no tiene régimen fiscal configurado").format(customer_link))
 
 		if self.customer_address:
 			address = self.customer_address_doc
 			if not address.pincode[:5]:
 				link = f'<a href="{address.get_url()}">{address.name}</a>'
-				msgs.append(_("Customer address {0} has no zip code").format(link))
+				msgs.append(_("La dirección del cliente {0} no tiene código postal").format(link))
 		else:
-			msgs.append(_("Invoice has no billing address"))
+			msgs.append(_("La factura no tiene dirección de facturación"))
 
 		if len(msgs) > 0:
 			frappe.throw(msgs, as_list=True)
@@ -272,17 +272,17 @@ class SalesInvoice(CommonController, sales_invoice.SalesInvoice):
 				"El saldo pendiente debe ser 0 para usar PUE. "
 				"Por favor, registre el pago primero, o cambie el Método de Pago SAT a 'PPD' (Pago en parcialidades o diferido)."
 			)
-			frappe.throw(msg, title=_("Invalid Payment Method"))
+			frappe.throw(msg, title=_("Método de Pago Inválido"))
 
 		tipo = catalogos.TipoDeComprobante.INGRESO
 		tipo_val = getattr(tipo, "value", tipo) if hasattr(tipo, "value") else tipo
 		if str(tipo_val) in ("I", "E", "N") and (not forma_pago or not metodo_pago):
 			msg = _(
-				"CFDI40223: For Tipo de Comprobante Ingreso, FormaPago and MetodoPago are required. "
-				"Set Mode of Payment and link it to an SAT Payment Method (e.g. 04 for Credit Card), "
-				"and set SAT Payment Option (PUE or PPD)."
+				"Error CFDI40223: Para facturas de Ingreso, la Forma de pago y el Método de pago son obligatorios. "
+				"Asegúrese de configurar la 'Forma de pago' (ej. Efectivo) vinculándola con su código SAT (ej. 01), "
+				"y seleccione el 'Método de Pago SAT' (PUE o PPD)."
 			)
-			frappe.throw(msg, title=_("CFDI Validation Error"))
+			frappe.throw(msg, title=_("Error de validación del CFDI"))
 
 		return cfdi40.Comprobante(
 			emisor=csd.get_issuer(),
@@ -313,7 +313,7 @@ class SalesInvoice(CommonController, sales_invoice.SalesInvoice):
 		try:
 			cfdi = self.sign_cfdi(certificate)
 		except SchemaValidationError as e:
-			frappe.throw(str(e), title=_("Invalid CFDI"))
+			frappe.throw(str(e), title=_("CFDI Inválido"))
 
 		ws = get_ws_client()
 		response = ws.stamp(cfdi)
@@ -391,7 +391,7 @@ class SalesInvoice(CommonController, sales_invoice.SalesInvoice):
 		msgs = []
 		for r in self.mx_related_sales_invoices:
 			if not r.uuid:
-				msg = _("Related Sales Invoice {0} has not been stamped")
+				msg = _("La factura relacionada {0} no ha sido timbrada")
 				msgs.append(msg.format(r.sales_invoice))
 
 		if len(msgs) > 0:
