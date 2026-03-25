@@ -47,7 +47,7 @@ class CommonController(Document):
 	def cfdi_folio(self) -> str:
 		"""CFDI Folio number"""
 		prefix = str(NamingSeries(self.naming_series).get_prefix())
-		return str(int(self.name.replace(prefix, "")))
+		return self.name.replace(prefix, "")
 
 	@abc.abstractmethod
 	def get_cfdi_voucher(self, csd: DigitalSigningCertificate) -> cfdi40.Comprobante:
