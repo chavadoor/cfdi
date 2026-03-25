@@ -4,7 +4,7 @@ import sqlite3
 import datetime
 from erpnext_mexico_compliance.sat_catalogs import get_sqlite_connection
 
-@click.command("mexico-compliance-sync-catalogs")
+@click.command("sync-sat-catalogs")
 def sync_sat_catalogs():
     """Descarga y sincroniza catálogos del SAT desde sqlite a ERPNext."""
     frappe.init(site=frappe.utils.get_sites()[0] if frappe.utils.get_sites() else "site1.local")
