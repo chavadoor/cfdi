@@ -251,8 +251,13 @@ class SalesInvoice(CommonController, sales_invoice.SalesInvoice):
 		for rsi in self.mx_related_sales_invoices:
 			related_documents.setdefault(rsi.sat_relationship_type, []).append(rsi.uuid)
 
-		forma_pago = self._get_effective_forma_pago()
 		metodo_pago = self._get_effective_metodo_pago()
+		forma_pago = self._get_effective_forma_pago()
+
+		# Per SAT rules, if MetodoPago is PPD, FormaPago MUST be "99" (Por definir).
+		if metodo_pago == "PPD":
+			forma_pago = "99"
+
 		tipo = catalogos.TipoDeComprobante.INGRESO
 		tipo_val = getattr(tipo, "value", tipo) if hasattr(tipo, "value") else tipo
 		if str(tipo_val) in ("I", "E", "N") and (not forma_pago or not metodo_pago):
