@@ -67,7 +67,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-01-15 11:47:15.876169",
+ "modified": "2026-03-25 11:00:00.000000",
  "modified_by": "Administrator",
  "module": "ERPNext Mexico Compliance",
  "name": "CFDI Stamping Settings",
@@ -79,7 +79,7 @@
    "email": 1,
    "print": 1,
    "read": 1,
-   "role": "System Manager",
+   "role": "Administrator",
    "share": 1,
    "write": 1
   }
