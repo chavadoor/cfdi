@@ -71,6 +71,39 @@ class SalesInvoice(CommonController, sales_invoice.SalesInvoice):
 		be stamped.
 		"""
 		super().on_submit()
+
+		# --- Auto-Payment Logic for PUE ---
+		metodo_pago_val = self._get_effective_metodo_pago()
+		forma_pago_val = self._get_effective_forma_pago()
+		
+		# Detect swapped values to ensure robust check
+		if str(metodo_pago_val).upper() not in ["PUE", "PPD"] and str(forma_pago_val).upper() in ["PUE", "PPD"]:
+			metodo_pago = forma_pago_val
+		else:
+			metodo_pago = metodo_pago_val
+
+		if metodo_pago == "PUE" and self.outstanding_amount > 0:
+			if not getattr(self, "mode_of_payment", None):
+				frappe.throw(_("Para registrar el pago automático PUE, debe seleccionar una 'Forma de pago' (ej. Efectivo, Transferencia)."))
+			
+			try:
+				from erpnext.accounts.doctype.payment_entry.payment_entry import get_payment_entry
+				pe = get_payment_entry("Sales Invoice", self.name)
+				pe.mode_of_payment = self.mode_of_payment
+				pe.reference_no = self.name
+				pe.reference_date = self.posting_date
+				pe.insert(ignore_permissions=True)
+				pe.submit()
+				frappe.msgprint(_("Pago registrado automáticamente por el total de la factura (PUE)."), alert=True)
+				self.reload()  # Reload document to update outstanding_amount to 0
+			except Exception as e:
+				frappe.throw(
+					_("No se pudo registrar el pago automático PUE. Asegúrese de que la Forma de Pago '{0}' tenga configurada una 'Cuenta predeterminada' en el sistema. Error original: {1}").format(
+						self.mode_of_payment, str(e)
+					)
+				)
+		# ----------------------------------
+
 		settings: CFDIStampingSettings = frappe.get_single("CFDI Stamping Settings")
 		if settings.stamp_on_submit:
 			csd = frappe.get_value("Default CSD", {"company": self.company}, "csd")
