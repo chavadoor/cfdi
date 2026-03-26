@@ -212,8 +212,6 @@ class PaymentEntry(CommonController, payment_entry.PaymentEntry):
 			folio=self.cfdi_folio,
 			fecha=get_datetime(posting_date),
 		)
-			fecha=get_datetime(posting_date),
-		)
 
 	def validate_company_address(self):
 		"""
