@@ -78,7 +78,7 @@ class PaymentEntry(CommonController, payment_entry.PaymentEntry):
 			try:
 				self.stamp_cfdi(csd)
 			except Exception as e:
-				frappe.msgprint(str(e), title=_("CFDI Stamping Error"))
+				frappe.msgprint(str(e), title=_("Error al timbrar el pago"))
 
 	@property
 	def company_address(self) -> str:
@@ -157,6 +157,7 @@ class PaymentEntry(CommonController, payment_entry.PaymentEntry):
 
 	def get_cfdi_voucher(self, csd: DigitalSigningCertificate) -> cfdi40.Comprobante:
 		from satcfdi.create.cfd.cfdi40 import PagoComprobante
+		from satcfdi.create.cfd import pago20
 
 		address = frappe.get_doc("Address", self.company_address)
 
@@ -172,8 +173,8 @@ class PaymentEntry(CommonController, payment_entry.PaymentEntry):
 		forma_pago = self._get_effective_forma_pago()
 		if not forma_pago:
 			frappe.throw(
-				_("FormaPago is required for Payment Entry CFDI. Set Mode of Payment and link it to an SAT Payment Method (e.g. 04 for Credit Card)."),
-				title=_("CFDI Validation Error"),
+				_("La Forma de Pago es obligatoria para el CFDI de Recepción de Pagos. Configure la 'Forma de pago' y asegúrese de que tenga enlazado su código SAT (ej. 03 para Transferencia)."),
+				title=_("Error de validación del CFDI"),
 			)
 
 		invoices = []
@@ -182,7 +183,7 @@ class PaymentEntry(CommonController, payment_entry.PaymentEntry):
 				r.reference_doctype, r.reference_name
 			)
 			if not invoice.mx_stamped_xml:
-				msg = _("Reference {0} has not being stamped").format(invoice.name)
+				msg = _("La factura de referencia {0} no ha sido timbrada").format(invoice.name)
 				frappe.throw(msg)
 			
 			cfdi = invoice.mx_cfdi_obj
@@ -199,6 +200,7 @@ class PaymentEntry(CommonController, payment_entry.PaymentEntry):
 				)
 			)
 
+		# Generate the specialized Comprobante for Pagos (REP 2.0)
 		return cfdi40.Comprobante.pago_comprobantes(
 			comprobantes=invoices,
 			fecha_pago=get_datetime(reference_date),
@@ -208,6 +210,8 @@ class PaymentEntry(CommonController, payment_entry.PaymentEntry):
 			receptor=self.cfdi_receiver,
 			serie=self.cfdi_series,
 			folio=self.cfdi_folio,
+			fecha=get_datetime(posting_date),
+		)
 			fecha=get_datetime(posting_date),
 		)
 
@@ -272,15 +276,15 @@ class PaymentEntry(CommonController, payment_entry.PaymentEntry):
 		msgs = []
 		for ref in self.get_reference_docs():
 			if ref.doctype != "Sales Invoice":
-				msg = _("Cannot stamp a payment entry with a {0} reference").format(ref.doctype)
+				msg = _("No se puede timbrar un pago con una referencia de tipo {0}. Solo se permiten Facturas de Venta.").format(ref.doctype)
 				msgs.append(msg)
 
 			if not ref.mx_stamped_xml:
 				anchor = f'<a href="{ref.get_url()}">{ref.name}</a>'
-				msgs.append(_("Reference {0} has not being stamped").format(anchor))
+				msgs.append(_("La factura de referencia {0} no ha sido timbrada.").format(anchor))
 
 			if ref.mx_payment_option != "PPD":
-				msg = _("SAT Payment Option for reference {0} is not PPD").format(ref.mx_payment_option)
+				msg = _("El Método de Pago SAT para la factura {0} no es PPD. Solo las facturas PPD requieren complemento de pago.").format(ref.name)
 				msgs.append(msg)
 
 		if len(msgs) > 0:
@@ -294,7 +298,7 @@ class PaymentEntry(CommonController, payment_entry.PaymentEntry):
 		try:
 			cfdi = self.sign_cfdi(certificate)
 		except SchemaValidationError as e:
-			frappe.throw(str(e), title=_("Invalid CFDI"))
+			frappe.throw(str(e), title=_("CFDI Inválido"))
 
 		ws = get_ws_client()
 		response = ws.stamp(cfdi)
@@ -353,7 +357,7 @@ class PaymentEntry(CommonController, payment_entry.PaymentEntry):
 			frappe.ValidationError: If the mode of payment is "99".
 		"""
 		if self.mx_payment_mode == "99":
-			frappe.throw(_("Invalid SAT Payment Method"))
+			frappe.throw(_("La Forma de Pago SAT no puede ser '99' (Por definir) para un complemento de pago. Seleccione la forma real en que recibió el dinero (ej. Transferencia, Efectivo)."))
 
 	def validate(self):
 		super().validate()
