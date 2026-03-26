@@ -127,11 +127,12 @@ def sync_catalogs_logic():
             cursor.execute(f"SELECT * FROM {table}")
             rows = cursor.fetchall()
             
-            # Obtener llaves existentes para no duplicar ni intentar insertar
-            existing_keys = set(frappe.get_all(doctype, pluck="name"))
-            
             to_insert = []
+            to_update = []
             now = frappe.utils.now()
+
+            # Obtener llaves existentes para saber si insertamos o actualizamos
+            existing_keys = set(frappe.get_all(doctype, pluck="name"))
 
             for row in rows:
                 row_dict = dict(zip(columns, row))
@@ -142,22 +143,26 @@ def sync_catalogs_logic():
                 
                 doc_name = str(doc_key_val)
                 
+                doc_data = {
+                    "doctype": doctype,
+                    "name": doc_name,
+                    "owner": "Administrator",
+                    "modified_by": "Administrator",
+                    "creation": now,
+                    "modified": now
+                }
+                for doc_field, db_field in mapping["fields"].items():
+                    if db_field == "1" or db_field == "0":
+                        doc_data[doc_field] = int(db_field)
+                    else:
+                        val = row_dict.get(db_field)
+                        doc_data[doc_field] = val if val else ""
+
                 if doc_name not in existing_keys:
-                    doc_data = {
-                        "doctype": doctype,
-                        "name": doc_name,
-                        "owner": "Administrator",
-                        "modified_by": "Administrator",
-                        "creation": now,
-                        "modified": now
-                    }
-                    for doc_field, db_field in mapping["fields"].items():
-                        if db_field == "1" or db_field == "0":
-                            doc_data[doc_field] = int(db_field)
-                        else:
-                            val = row_dict.get(db_field)
-                            doc_data[doc_field] = val if val else ""
                     to_insert.append(doc_data)
+                else:
+                    # Preparar para forzar actualización si ya existe
+                    to_update.append(doc_data)
 
             if to_insert:
                 click.echo(f"Insertando {len(to_insert)} nuevos registros en {doctype}...")
@@ -184,9 +189,26 @@ def sync_catalogs_logic():
                             except Exception as inner_e:
                                 frappe.db.rollback()
 
-                click.echo(f"¡Importación de '{table}' a '{doctype}' completada exitosamente!")
+            if to_update:
+                click.echo(f"Actualizando {len(to_update)} registros existentes en {doctype} (forzando restauración)...")
+                for doc_data in to_update:
+                    try:
+                        # Forzamos la actualización cargando el doc existente y guardando
+                        doc = frappe.get_doc(doctype, doc_data["name"])
+                        for k, v in doc_data.items():
+                            if k not in ["doctype", "name", "creation"]:
+                                doc.set(k, v)
+                        # Restauramos el estado si estaba cancelado o borrado lógicamente
+                        doc.docstatus = 0
+                        doc.save(ignore_permissions=True)
+                    except Exception as e:
+                        pass # Silencioso en errores individuales durante la actualización masiva
+                frappe.db.commit()
+
+            if to_insert or to_update:
+                click.echo(f"¡Importación/Actualización de '{table}' a '{doctype}' completada exitosamente!")
             else:
-                click.echo(f"El DocType '{doctype}' ya se encuentra actualizado (0 registros nuevos).")
+                click.echo(f"El DocType '{doctype}' ya se encuentra actualizado (0 registros nuevos/modificados).")
             
         except sqlite3.Error as e:
             click.echo(f"Error al procesar la tabla {table}: {e}")
