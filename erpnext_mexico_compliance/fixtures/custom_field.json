@@ -941,7 +941,7 @@
   "insert_after": "relation",
   "is_system_generated": 0,
   "is_virtual": 0,
-  "label": "México",
+  "label": "M\u00e9xico",
   "length": 0,
   "link_filters": null,
   "mandatory_depends_on": null,
