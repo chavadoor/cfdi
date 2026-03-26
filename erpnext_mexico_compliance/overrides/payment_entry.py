@@ -90,11 +90,24 @@ class PaymentEntry(CommonController, payment_entry.PaymentEntry):
 		"""`cfdi40.Receptor` object representing the receiver of the CFDI document for this payment
 		entry."""
 		customer = frappe.get_doc(self.party_type, self.party)
-		address = frappe.get_doc("Address", customer.customer_primary_address)
+		
+		# Robust address retrieval: try primary first, then any valid address
+		address_name = customer.customer_primary_address
+		if not address_name:
+			address_name = frappe.db.get_value("Dynamic Link", 
+				{"link_doctype": "Customer", "link_name": self.party, "parenttype": "Address"}, 
+				"parent")
+
+		if not address_name:
+			link = f'<a href="{customer.get_url()}">{customer.name}</a>'
+			msg = _("El cliente {0} no tiene ninguna dirección registrada").format(link)
+			frappe.throw(msg)
+
+		address = frappe.get_doc("Address", address_name)
 
 		if not customer.mx_tax_regime:
 			link = f'<a href="{customer.get_url()}">{customer.name}</a>'
-			msg = _("Customer {0} has no tax regime").format(link)
+			msg = _("El cliente {0} no tiene régimen fiscal configurado").format(link)
 			frappe.throw(msg)
 
 		return cfdi40.Receptor(
@@ -221,15 +234,21 @@ class PaymentEntry(CommonController, payment_entry.PaymentEntry):
 	def validate_customer_address(self):
 		customer: Customer = frappe.get_doc(self.party_type, self.party)  # type: ignore
 
-		if not customer.customer_primary_address:
+		address_name = customer.customer_primary_address
+		if not address_name:
+			address_name = frappe.db.get_value("Dynamic Link", 
+				{"link_doctype": "Customer", "link_name": self.party, "parenttype": "Address"}, 
+				"parent")
+
+		if not address_name:
 			link = f'<a href="{customer.get_url()}">{customer.name}</a>'
-			msg = _("Customer {0} has no primary address").format(link)
+			msg = _("El cliente {0} no tiene ninguna dirección registrada").format(link)
 			frappe.throw(msg)
 
-		address: Address = frappe.get_doc("Address", customer.customer_primary_address)  # type: ignore
+		address: Address = frappe.get_doc("Address", address_name)  # type: ignore
 		if not address.pincode[:5]:
 			link = f'<a href="{address.get_url()}">{address.name}</a>'
-			msg = _("Customer address {0} has no zip code").format(link)
+			msg = _("La dirección del cliente {0} no tiene código postal").format(link)
 			frappe.throw(msg)
 
 	def get_reference_docs(self) -> list[Document]:
