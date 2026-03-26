@@ -1,26 +1,10 @@
-# Copyright (c) 2022, TI Sin Problemas and contributors
-# For license information, please see license.txt
-
-# import frappe
+import frappe
 from frappe.model.document import Document
-
+from frappe import _
 
 class SATPaymentMethod(Document):
-    # begin: auto-generated types
-    # This code is auto-generated. Do not modify anything in this block.
-
-    from typing import TYPE_CHECKING
-
-    if TYPE_CHECKING:
-        from frappe.types import DF
-
-        description: DF.Data
-        enabled: DF.Check
-        key: DF.Data
-        key_name: DF.Data | None
-    # end: auto-generated types
-    """SAT's Payment Mode (Forma de pago)"""
-
-    def before_save(self):
-        """Set DocType key name"""
-        self.key_name = f"{self.key} - {self.description}"[:140]
+    def validate(self):
+        # Exclusividad: La Forma de Pago (01, 03, etc) DEBE ser numérica o 99.
+        # No permitimos PUE ni PPD aquí.
+        if not self.key.isdigit() and self.key not in ["99"]:
+            frappe.throw(_("Código '{0}' inválido para Forma de Pago. Este catálogo solo acepta códigos numéricos del SAT (01, 03, 99, etc).").format(self.key))

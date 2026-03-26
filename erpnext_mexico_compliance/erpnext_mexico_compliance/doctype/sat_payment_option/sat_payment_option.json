@@ -3,7 +3,7 @@
  "autoname": "field:key",
  "creation": "2024-06-27 01:29:40.855867",
  "default_view": "List",
- "description": "Indicates the method used to make a payment, in accordance with the SAT catalog of payment methods (PUE, PPD)",
+ "description": "Catálogo c_MetodoPago del SAT (PUE, PPD). Define CUÁNDO se paga.",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
@@ -22,13 +22,13 @@
    "default": "1",
    "fieldname": "enabled",
    "fieldtype": "Check",
-   "label": "Enabled"
+   "label": "Habilitado"
   },
   {
    "fieldname": "key",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "SAT Method Code",
+   "label": "Código SAT (c_MetodoPago)",
    "length": 3,
    "reqd": 1,
    "unique": 1
@@ -36,14 +36,14 @@
   {
    "fieldname": "key_name",
    "fieldtype": "Data",
-   "label": "Payment Method Name",
+   "label": "Descripción del Método",
    "read_only": 1
   },
   {
    "fieldname": "description",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Description",
+   "label": "Nombre SAT",
    "reqd": 1
   }
  ],
